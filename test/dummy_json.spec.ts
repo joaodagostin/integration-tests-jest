@@ -1,52 +1,118 @@
-const { getProducts, createProduct, updateProduct, deleteProduct } = require("../dummy_json.js");
+import pactum from 'pactum';
 
-// Mock do fetch tipado para Jest
-global.fetch = jest.fn() as jest.Mock;
+const BASE_URL = 'https://dummyjson.com';
 
-const mockFetch = fetch as jest.Mock;
+describe('DummyJSON API - PactumJS Tests', () => {
 
-describe("Testes CRUD DummyJSON", () => {
-
-  beforeEach(() => {
-    mockFetch.mockClear();
+  // 1 - Listar produtos (GET)
+  it('Deve retornar uma lista de produtos', async () => {
+    await pactum.spec()
+      .get(`${BASE_URL}/products`)
+      .expectStatus(200)
+      .expectJsonLike({
+        products: [{ id: 1 }]
+      });
   });
 
-  test("GET products deve retornar lista de produtos", async () => {
-    mockFetch.mockResolvedValueOnce({
-      json: async () => ({ products: [{ id: 1, title: "Produto Teste" }] }),
-    });
-
-    const result = await getProducts();
-    expect(result.products).toHaveLength(1);
-    expect(result.products[0].title).toBe("Produto Teste");
+  // 2 - Buscar um produto específico (GET by ID)
+  it('Deve retornar um produto pelo ID', async () => {
+    await pactum.spec()
+      .get(`${BASE_URL}/products/1`)
+      .expectStatus(200)
+      .expectJsonLike({
+        id: 1,
+        title: "Essence Mascara Lash Princess"
+      });
   });
 
-  test("POST product deve criar um produto", async () => {
-    mockFetch.mockResolvedValueOnce({
-      json: async () => ({ id: 101, title: "Notebook Gamer" }),
-    });
-
-    const result = await createProduct();
-    expect(result.id).toBe(101);
-    expect(result.title).toBe("Notebook Gamer");
+  // 3 - Criar produto (POST)
+  it('Deve criar um novo produto', async () => {
+    await pactum.spec()
+      .post(`${BASE_URL}/products/add`)
+      .withJson({
+        title: "Notebook Gamer",
+        price: 4500,
+        category: "electronics"
+      })
+      .expectStatus(201)
+      .expectJsonLike({
+        title: "Notebook Gamer"
+      });
   });
 
-  test("PUT product deve atualizar um produto", async () => {
-    mockFetch.mockResolvedValueOnce({
-      json: async () => ({ id: 1, title: "Notebook Gamer Atualizado" }),
-    });
-
-    const result = await updateProduct();
-    expect(result.title).toBe("Notebook Gamer Atualizado");
+  // 4 - Atualizar produto (PUT)
+  it('Deve atualizar um produto existente', async () => {
+    await pactum.spec()
+      .put(`${BASE_URL}/products/1`)
+      .withJson({
+        title: "iPhone 9 atualizado",
+        price: 499
+      })
+      .expectStatus(200)
+      .expectJsonLike({
+        title: "iPhone 9 atualizado"
+      });
   });
 
-  test("DELETE product deve remover um produto", async () => {
-    mockFetch.mockResolvedValueOnce({
-      json: async () => ({ id: 1, isDeleted: true }),
-    });
+  // 5 - Deletar produto (DELETE)
+  it('Deve deletar um produto', async () => {
+    await pactum.spec()
+      .delete(`${BASE_URL}/products/1`)
+      .expectStatus(200)
+      .expectJsonLike({
+        isDeleted: true
+      });
+  });
 
-    const result = await deleteProduct();
-    expect(result.isDeleted).toBe(true);
+  // 6 - Buscar usuários (GET)
+  it('Deve retornar lista de usuários', async () => {
+    await pactum.spec()
+      .get(`${BASE_URL}/users`)
+      .expectStatus(200)
+      .expectJsonLike({
+        users: [{ id: 1 }]
+      });
+  });
+
+  // 7 - Buscar um usuário específico
+  it('Deve retornar um usuário pelo ID', async () => {
+    await pactum.spec()
+      .get(`${BASE_URL}/users/1`)
+      .expectStatus(200)
+      .expectJsonLike({
+        id: 1,
+        firstName: "Emily"
+      });
+  });
+
+  // 8 - Buscar posts
+  it('Deve retornar lista de posts', async () => {
+    await pactum.spec()
+      .get(`${BASE_URL}/posts`)
+      .expectStatus(200)
+      .expectJsonLike({
+        posts: [{ id: 1 }]
+      });
+  });
+
+  // 9 - Buscar comentários
+  it('Deve retornar lista de comentários', async () => {
+    await pactum.spec()
+      .get(`${BASE_URL}/comments`)
+      .expectStatus(200)
+      .expectJsonLike({
+        comments: [{ id: 1 }]
+      });
+  });
+
+  // 10 - Buscar carrinhos
+  it('Deve retornar lista de carrinhos', async () => {
+    await pactum.spec()
+      .get(`${BASE_URL}/carts`)
+      .expectStatus(200)
+      .expectJsonLike({
+        carts: [{ id: 1 }]
+      });
   });
 
 });
